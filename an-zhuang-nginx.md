@@ -70,12 +70,13 @@ PCRE全称Perl Compatible Regular Expressions，中文Perl兼容正则表达式�
 # ./configure --user=www --group=www --prefix=/usr/local/nginx-1.14.1 --with-http_stub_status_module --with-http_ssl_module
 ```
 
-> ```bash
-> 如果编译的时候报错
-> ./configure: error: C compiler cc is not found
-> 执行如下命令
-> # yum -y install gcc gcc-c++ autoconf automake make
-> ```
+{% hint style="danger" %}
+如果编译的时候报错 ./configure: error: C compiler cc is not found
+
+执行如下命令
+
+`# yum -y install gcc gcc-c++ autoconf automake make`
+{% endhint %}
 
 ### 安装Nginx
 
@@ -275,128 +276,5 @@ PCRE全称Perl Compatible Regular Expressions，中文Perl兼容正则表达式�
 --with-openssl-opt 在编译时为openssl设置附加参数
 
 --with-debug 启用debug日志
-```
-
-## 将Nginx添加到系统服务（使其可使用service命令控制）
-
- 1、写脚本，名为nginx
-
-```bash
-#!/bin/bash
-# nginx Startup script for the Nginx HTTP Server
-# this script create it by jackbillow at 2007.10.15.
-# it is v.0.0.2 version.
-# if you find any errors on this scripts,please contact jackbillow.
-# and send mail to jackbillow at gmail dot com.
-#
-# chkconfig: - 85 15
-# description: Nginx is a high-performance web and proxy server.
-#              It has a lot of features, but it's not for everyone.
-# processname: nginx
-# pidfile: /var/run/nginx.pid
-# config: /usr/local/nginx/nginx/conf/nginx.conf
-
-nginxd=/usr/local/nginx-1.14.1/sbin/nginx
-nginx_config=/usr/local/nginx-1.14.1/conf/nginx.conf
-nginx_pid=/var/run/nginx.pid
-
-RETVAL=0
-prog="nginx"
-
-# Source function library.
-. /etc/rc.d/init.d/functions
-
-# Source networking configuration.
-. /etc/sysconfig/network
-
-# Check that networking is up.
-[ ${NETWORKING} = "no" ] && exit 0
-
-[ -x $nginxd ] || exit 0
-
-
-# Start nginx daemons functions.
-start() {
-    
-    if [ -e $nginx_pid ];then
-        echo "nginx already running...."
-        exit 1
-    fi
-        
-    echo -n $"Starting $prog: "
-    daemon $nginxd -c ${nginx_config}
-    RETVAL=$?
-    echo
-    [ $RETVAL = 0 ] && touch /var/lock/subsys/nginx
-    return $RETVAL
-}
-
-
-# Stop nginx daemons functions.
-stop() {
-    echo -n $"Stopping $prog: "
-    killproc $nginxd
-    RETVAL=$?
-    echo
-    [ $RETVAL = 0 ] && rm -f /var/lock/subsys/nginx /var/run/nginx.pid
-}
-
-
-# reload nginx service functions.
-reload() {
-
-    echo -n $"Reloading $prog: "
-    #kill -HUP `cat ${nginx_pid}`
-    killproc $nginxd -HUP
-    RETVAL=$?
-    echo
-
-}
-
-# See how we were called.
-case "$1" in
-start)
-        start
-        ;;
-
-stop)
-        stop
-        ;;
-
-reload)
-        reload
-        ;;
-
-restart)
-        stop
-        start
-        ;;
-
-status)
-        status $prog
-        RETVAL=$?
-        ;;
-*)
-        echo $"Usage: $prog {start|stop|restart|reload|status|help}"
-        exit 1
-esac
-
-exit $RETVAL
-
-
-```
-
-2、把nginx脚本放到 /etc/init.d/目录下
-
-3、修改nginx脚本权限
-
-```text
-# chmod 755 /etc/init.d/nginx
-```
-
-4、添加到service服务中
-
-```text
-# chkconfig --add nginx
 ```
 
