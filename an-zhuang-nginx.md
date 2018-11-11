@@ -77,6 +77,18 @@ PCRE全称Perl Compatible Regular Expressions，中文Perl兼容正则表达式�
 > # yum -y install gcc gcc-c++ autoconf automake make
 > ```
 
+### 安装Nginx
+
+```text
+# make && make install
+```
+
+### 启动Nginx
+
+```text
+/usr/local/nginx-1.14.1/sbin/nginx
+```
+
 ### Nginx编译参数解释
 
 ```text
