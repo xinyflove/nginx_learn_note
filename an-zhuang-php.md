@@ -82,6 +82,18 @@ location ~ \.php$ {
 
  这部分的配置根据 nginx 的配置情况略有不同，具体指令请查阅 nginx fastcgi 相关。
 
+### 其他注意事项
+
+#### 提示date.timezone错误
+
+在php.ini配置文件找到date.timezone，去掉分号，修改为
+
+```text
+date.timezone = PRC
+```
+
+保存重启php-fpm
+
 ## 如果服务器上已经安装过了php5 怎么办
 
 这个很简单，如果是文件位置冲突，比如 `/etc/init.d/php-fpm` 已经存在了，你可以将 php7 的脚本改名为`/etc/init.d/php-fpm7`。
