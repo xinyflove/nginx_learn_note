@@ -59,7 +59,7 @@
 ### 启动PHP
 
 ```text
-# /etc/init.d/php-fpm5.6 start
+# /etc/init.d/php-fpm56 start
 ```
 
  通过`netstat -an | grep 9000`, 可以看到 php-fpm 已经在监听 9000 端口了
