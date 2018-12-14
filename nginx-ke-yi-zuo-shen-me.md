@@ -21,7 +21,7 @@ description: Nginx 到底可以做什么？看完这篇你就懂了！
 
 2.在`/usr/local/nginx/conf/vhost` 添加`testnginx.conf`配置文件，内容为：
 
-```text
+```
 server
 {
     listen       80;
@@ -48,7 +48,7 @@ server
 
 **反向代理**应该是Nginx做的最多的一件事了，什么是反向代理呢，以下是百度百科的说法：反向代理（Reverse Proxy）方式是指以代理服务器来接受internet上的连接请求，然后将请求转发给内部网络上的服务器，并将从服务器上得到的结果返回给internet上请求连接的客户端，此时代理服务器对外就表现为一个反向代理服务器。简单来说就是真实的服务器不能直接被外部网络访问，所以需要一台代理服务器，而代理服务器能被外部网络访问的同时又跟真实服务器在同一个网络环境，当然也可能是同一台服务器，端口不同而已。下面贴上一段简单的实现反向代理的代码
 
-```http
+```
 server {
 	listen       80;
 	server_name  testnginx.xin;
@@ -60,7 +60,7 @@ server {
 }
 ```
 
-保存配置文件后启动Nginx，这样当我们访问localhost的时候，就相当于访问localhost:8080了
+保存配置文件后启动Nginx，这样当我们访问`http://testnginx.xin`的时候，就相当于访问localhost:8080了
 
 ![](.gitbook/assets/nginx_test1.jpg)
 
@@ -74,17 +74,18 @@ server {
 
 简单配置
 
-```text
-upstream test {
+```
+upstream backend {
     server localhost:8080;
     server localhost:8081;
+    server localhost:8082;
 }
 server {
-	listen       81;                                                         
+	listen       80;                                                         
 	server_name  localhost;                                               
 	client_max_body_size 1024M;
 	location / {
-		proxy_pass http://test;
+		proxy_pass http://backend;
 		proxy_set_header Host $host:$server_port;
 	}
 }
@@ -92,21 +93,22 @@ server {
 
 负载均衡的核心代码为
 
-```text
-upstream test {
+```
+upstream backend {
     server localhost:8080;
     server localhost:8081;
+    server localhost:8082;
 }
 ```
 
-这里我配置了2台服务器，当然实际上是一台，只是端口不一样而已，而8081的服务器是不存在的,也就是说访问不到，但是我们访问http://localhost 的时候,也不会有问题，会默认跳转到http://localhost:8080 具体是因为Nginx会自动判断服务器的状态，如果服务器处于不能访问（服务器挂了），就不会跳转到这台服务器，所以也避免了一台服务器挂了影响使用的情况，由于Nginx默认是RR策略，所以我们不需要其他更多的设置。
+这里我配置了3台服务器，当然实际上是一台，只是端口不一样而已，端口`8081`仿照端口`8080`做个一展示`web3`的服务器，而8082的服务器是不存在的,也就是说访问不到，但是我们访问`http://testnginx.xin` 的时候,也不会有问题，会默认跳转到`http://localhost:8080`或`http://localhost:8081` 具体是因为Nginx会自动判断服务器的状态，如果服务器处于不能访问（服务器挂了），就不会跳转到这台服务器，所以也避免了一台服务器挂了影响使用的情况，由于Nginx默认是RR策略，所以我们不需要其他更多的设置。
 
 ### **2.权重**
 
 指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。例如
 
-```text
-upstream test {
+```
+upstream backend {
 	server localhost:8080 weight=9;
 	server localhost:8081 weight=1;
 }
@@ -118,8 +120,8 @@ upstream test {
 
 上面的2种方式都有一个问题，那就是下一个请求来的时候请求可能分发到另外一个服务器，当我们的程序不是无状态的时候（采用了session保存数据），这时候就有一个很大的很问题了，比如把登录信息保存到了session中，那么跳转到另外一台服务器的时候就需要重新登录了，所以很多时候我们需要一个客户只访问一个服务器，那么就需要用iphash了，iphash的每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。
 
-```text
-upstream test {
+```
+upstream backend {
 	ip_hash;
 	server localhost:8080;
 	server localhost:8081;
@@ -130,7 +132,7 @@ upstream test {
 
 按后端服务器的响应时间来分配请求，响应时间短的优先分配。
 
-```text
+```
 upstream backend { 
 	fair; 
 	server localhost:8080;
